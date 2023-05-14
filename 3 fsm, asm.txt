@@ -1,0 +1,130 @@
+module fsm_111_mealy(o,reset,a,clk);
+output reg o;
+input reset,a,clk;
+reg[1:0]pre_s, nxt_s;
+initial 
+begin
+pre_s=2'b00;
+end
+always@(posedge clk)
+
+begin
+if(reset==1)
+begin 
+pre_s=2'b00; 
+o=0;
+end
+else
+begin
+
+case(pre_s)
+2'b00:
+begin 
+if (a==1)
+begin
+o=0; 
+nxt_s=2'b01;
+pre_s=nxt_s; 
+end
+
+else 
+begin 
+o=0; 
+nxt_s=2'b00;
+pre_s=nxt_s; 
+end 
+end
+
+2'b01:
+begin 
+if (a==1)
+begin 
+o=0; 
+nxt_s=2'b10;
+pre_s=nxt_s; 
+end
+
+else 
+begin 
+o=0; 
+nxt_s=2'b00;
+pre_s=nxt_s; 
+end 
+end
+
+2'b10:
+begin 
+if (a==1)
+begin 
+o=1; 
+nxt_s=2'b00;
+pre_s=nxt_s; 
+end
+
+else 
+begin 
+o=0; 
+nxt_s=2'b00;
+pre_s=nxt_s; 
+end 
+end
+
+default:pre_s = 2'b00;
+
+endcase
+end
+end
+endmodule
+
+
+
+module asm (input clk, input x, output reg ya, output reg yb, output reg yc, output reg y1, 
+output reg y2);
+reg [1:0] state, nextstate; 
+parameter [1:0] S0=0, S1=1, S2=2;
+always @(posedge clk) // always block to update state 
+state <= nextstate;
+always @(state or x) // always block to compute both Mealy output & next state 
+begin
+ y1 = 1'b0; y2 = 1'b0;
+case (state) 
+S0: if(x)
+ nextstate = S1; 
+else
+ nextstate = S0; 
+S1: if(x)
+ nextstate = S2;
+ else
+ nextstate = S0;
+S2: if(x)
+begin
+ y2 = 1'b1;
+ nextstate = S1;
+end 
+else 
+begin
+ y1 = 1'b1;
+ nextstate = S0;
+end
+default:nextstate = S0; 
+endcase 
+end 
+always @(state) // always block to compute Moore output 
+begin
+ya = 1'b0; yb = 1'b0; yc = 1'b0; 
+case(state)
+//begin
+S0: ya = 1'b1; 
+S1: yb = 1'b1;
+S2: yc = 1'b1;
+//end
+default: begin 
+ya = 1'b0;
+yb = 1'b0; 
+yc = 1'b0;
+end
+endcase
+end 
+endmodule
+
+

@@ -1,0 +1,147 @@
+module HA (sum, carry, a, b);
+input a, b;
+output  sum, carry;
+xor g1 (sum, a , b);
+and g2 (carry, a, b);
+endmodule
+
+
+module FA(sum, carry, a, b, cin);
+input a, b, cin;
+output sum, carry;
+wire w1, w2, w3;
+HA h1(w1, w2, a, b);
+HA h2(sum, w3, w1, cin);
+or g1(carry, w3, w2);
+endmodule
+
+
+module rca(s, cout, a, b, cin);
+input [3:0] a, b;
+input cin;
+output [3:0] s;
+output cout;
+wire c1, c2, c3;
+FA f1(s[0], c1, a[0], b[0], cin);
+FA f2(s[1], c2, a[0], b[1], c1);
+FA f3(s[2], c3, a[0], b[2], c2);
+FA f4(s[3], cout, a[0], b[3], c3);
+endmodule
+
+
+module mux_21 (y, i0, i1, s);
+output y;
+input i0, i1, s;
+wire sbar;
+assign sbar = ~s;
+assign y = (sbar&i0)|(s&i1);
+endmodule
+
+
+module mux_21 (y, i0, i1, s);
+output y;
+input i0, i1, s;
+wire sbar;
+assign sbar = ~s;
+assign y = (sbar&i0)|(s&i1);
+endmodule
+
+
+module mux_81 (out, s, i);
+output out;
+input [2:0]s;
+input [7:0]i;
+wire w1, w2;
+mux_41 m1(w1, i[0], i[1], i[2], i[3], s[0], s[1]);
+mux_41 m2(w2, i[4], i[5], i[6], i[7], s[0], s[1]);
+mux_21 m3(out, w1, w2, s[2]);
+endmodule
+
+
+module mux_41 (y, i0, i1, i2, i3, s0, s1);
+output y;
+input i0, i1, i2, i3;
+input s0, s1;
+assign y = (~s1&~s0&i0)|(~s1&s0&i1)|(s1&~s0&i2)|(s1&s0&i3);
+endmodule
+
+
+module srff_gate(q, qbar, s, r, clk);
+
+input s,r,clk; 
+output q, qbar;
+
+wire nand1_out; 
+wire nand2_out; 
+
+nand (nand1_out,clk,s); 
+nand (nand2_out,clk,r); 
+nand (q,nand1_out,qbar);
+nand (qbar,nand2_out,q);
+
+endmodule
+
+
+
+module jkff_behave(clk,j,knq,qbar);
+
+input clk,j,k;
+output reg q,qbar;
+
+always@(posedge clk)
+begin
+if(k = 0)
+begin
+q <= 0;
+qbar <= 1;
+end
+always@(posedge clk)
+begin
+  if(k = 0)
+   begin
+    q <= 0;
+    qbar <= 1;
+   end
+  else if(j = 1)
+   begin
+    q <= 0;
+    qbar <= 0;
+   end
+  else if(j = 0 & k = 0)
+   begin
+    q <= q;
+    qbar <= qbar;
+   end
+  else if(j = 1 & k = 1)
+   begin
+    q <= ~q;
+    qbar <= ~qbar;
+   end
+end
+
+endmodule
+
+
+module d3x8( output [7:0] d ,input [2:0] a, input e );
+wire x,y,z;
+not g1(z,a[0]);
+not g2(y,a[1]);
+not g3(x,a[2]);
+and g4(d[0],x,y,z,e);
+and g5(d[1],x,y,a[0],e);
+and g6(d[2],x,a[1],z,e);
+and g7(d[3],x,a[1],a[0],e);
+and g8(d[4],a[2],y,z,e);
+and g9(d[5],a[2],y,a[0],e);
+and g10(d[6],a[2],a[1],z,e);
+and g11(d[7],a[2],a[1],a[0],e);
+endmodule
+
+module d4x16(out, in,e);
+output [15:0] out;
+input [3:0] in;
+input e;         
+d3x8 d1(out[7:0],in[2:0],e);    
+d3x8 d2(out[15:8],in[2:0],~e);
+endmodule
+
